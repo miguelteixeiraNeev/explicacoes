@@ -39,8 +39,8 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const students = await getStudents();
-  console.log(students);
+  // const students = await getStudents();
+  console.log(prisma);
 
   return (
     <>
@@ -221,7 +221,7 @@ export default async function DashboardPage() {
 }
 
 async function getStudents() {
-  const students = await prisma.student_Year.findMany()
-  return students
+  //const students = await prisma.student.findMany()
+  //return students
 }
 

@@ -12,12 +12,104 @@ datasource db {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Student {
-  id         BigInt    @id @default(autoincrement())
-  created_at DateTime  @default(now()) @db.Timestamptz(6)
-  name       String    @db.VarChar
-  birthday   DateTime? @db.Date
-  gender     Int       @default(0) @db.SmallInt
-  avatar     String?   @db.VarChar
+  id          BigInt        @id @default(autoincrement())
+  created_at  DateTime      @default(now()) @db.Timestamptz(6)
+  name        String        @db.VarChar
+  birthday    DateTime?     @db.Date
+  gender      Int           @default(0) @db.SmallInt
+  avatar      String?       @db.VarChar
+  StudentYear StudentYear[]
+
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model School {
+  id          BigInt        @id @default(autoincrement())
+  created_at  DateTime      @default(now()) @db.Timestamptz(6)
+  name        String        @db.VarChar
+  address     String?       @db.VarChar
+  city        String?       @db.VarChar
+  StudentYear StudentYear[]
+
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model StudentYear {
+  id         BigInt   @id @default(autoincrement())
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  student_id BigInt
+  year_id    BigInt
+  school_id  BigInt
+  Grade      Grade[]
+  School     School   @relation(fields: [school_id], references: [id], onDelete: NoAction, map: "public_StudentYear_school_id_fkey")
+  Student    Student  @relation(fields: [student_id], references: [id], onDelete: NoAction, map: "public_StudentYear_student_id_fkey")
+  Year       Year     @relation(fields: [year_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "public_StudentYear_year_id_fkey")
+
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Year {
+  id          BigInt        @id @default(autoincrement())
+  created_at  DateTime      @default(now()) @db.Timestamptz(6)
+  name        String        @db.VarChar
+  start       DateTime      @db.Date
+  end         DateTime      @db.Date
+  Grade       Grade[]
+  StudentYear StudentYear[]
+
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Grade {
+  id              BigInt      @id @default(autoincrement())
+  created_at      DateTime    @default(now()) @db.Timestamptz(6)
+  student_year_id BigInt
+  year_id         BigInt
+  subject_id      BigInt
+  semester_id     BigInt?
+  date            DateTime    @db.Date
+  grade           Int?        @db.SmallInt
+  Semester        Semester?   @relation(fields: [semester_id], references: [id], onDelete: NoAction, map: "public_Grade_semester_id_fkey")
+  StudentYear     StudentYear @relation(fields: [student_year_id], references: [id], onDelete: NoAction, map: "public_Grade_student_year_id_fkey")
+  Subject         Subject     @relation(fields: [subject_id], references: [id], onDelete: NoAction, map: "public_Grade_subject_id_fkey")
+  Year            Year        @relation(fields: [year_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "public_Grade_year_id_fkey")
+
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Level {
+  id          BigInt    @id @default(autoincrement())
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  name        String    @db.VarChar
+  parent_name String    @db.VarChar
+  Subject     Subject[]
+
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Semester {
+  id         BigInt   @id @default(autoincrement())
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  name       String   @db.VarChar
+  Grade      Grade[]
+
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Subject {
+  id         BigInt   @id @default(autoincrement())
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  name       String   @db.VarChar
+  level_id   BigInt
+  Grade      Grade[]
+  Level      Level    @relation(fields: [level_id], references: [id], onDelete: NoAction, map: "public_Subject_level_id_fkey")
 
   @@schema("public")
 }

@@ -1,10 +1,10 @@
 "use client"
 
 import * as React from "react"
+import { PlusCircle } from 'lucide-react'
 // import {
 //   CaretSortIcon,
 //   CheckIcon,
-//   PlusCircledIcon,
 // } from "@radix-ui/react-icons"
 
 import { cn } from "@/lib/utils"
@@ -151,13 +151,13 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
               <CommandGroup>
                 <DialogTrigger asChild>
                   <CommandItem
+                    className="align-center"
                     onSelect={() => {
                       setOpen(false)
                       setShowNewTeamDialog(true)
-                    }}
-                  >
-                    {/* <PlusCircledIcon className="mr-2 h-5 w-5" /> */}
-                    Create Team
+                    }}>
+                    <PlusCircle size="14" className="mr-2 h-5 w-5" />
+                    Adicionar Teste
                   </CommandItem>
                 </DialogTrigger>
               </CommandGroup>
@@ -204,9 +204,9 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setShowNewTeamDialog(false)}>
-            Cancel
+            Cancelar
           </Button>
-          <Button type="submit">Continue</Button>
+          <Button type="submit">Guardar</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

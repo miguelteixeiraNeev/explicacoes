@@ -4,16 +4,6 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { Metadata } from "next"
-import Image from "next/image"
-import { Cake } from 'lucide-react'
-import { School } from 'lucide-react'
-import { cn } from "@/lib/utils"
-
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
 
 import Calendar from "@/app/dashboard/components/calendar"
 
@@ -32,9 +22,8 @@ import {
 } from "@/components/ui/tabs"
 
 import { MainNav } from "./dashboard/components/main-nav"
-import { Overview } from "./dashboard/components/overview"
 import { RecentSales } from "./dashboard/components/recent-sales"
-import TeamSwitcher from "./dashboard/components/team-switcher"
+// import TeamSwitcher from "./dashboard/components/team-switcher"
 import { UserNav } from "./dashboard/components/user-nav"
 
 export const metadata: Metadata = {
@@ -52,30 +41,38 @@ export default async function DashboardPage() {
 
   const students = await getStudents();
   const events = await getEvents();
-  console.log(events);
+
+  const nextBirthdays = students.filter((student: any) => student.Student.birthday !== null).map((student: any) => {
+    return {
+      name: student.Student.name,
+      date: new Date(`${new Date().getFullYear()}-${("0" + (student.Student.birthday.getMonth() + 1)).slice(-2)}-${("0" + student.Student.birthday.getDate()).slice(-2)}`),
+      desc: `${("0" + student.Student.birthday.getDate()).slice(-2)}/${("0" + (student.Student.birthday.getMonth() + 1)).slice(-2)} - Aniversário`,
+      icon: 'party2.gif',
+      avatar: student.Student.avatar,
+    }
+  })
+
+  const nextEvents = events.map((event: any) => {
+    return {
+      name: event.StudentYear.Student.name,
+      date: event.date,
+      desc: `${("0" + event.date.getDate()).slice(-2)}/${("0" + (event.date.getMonth() + 1)).slice(-2)} - Teste de ${event.Subject.name} (${event.Subject.Level.name})`,
+      icon: event.Subject.icon,
+      avatar: event.StudentYear.Student.avatar,
+    }
+  })
+
+  const totalNextEvents = [...nextEvents, ...nextBirthdays].filter((evt: any) => evt.date >= new Date()).sort((a, b) => {
+    //@ts-ignore
+    return new Date(a.date) - new Date(b.date);
+  })
 
   return (
     <>
-      <div className="md:hidden">
-        <Image
-          src="/examples/dashboard-light.png"
-          width={1280}
-          height={866}
-          alt="Dashboard"
-          className="block dark:hidden"
-        />
-        <Image
-          src="/examples/dashboard-dark.png"
-          width={1280}
-          height={866}
-          alt="Dashboard"
-          className="hidden dark:block"
-        />
-      </div>
       <div className="hidden flex-col md:flex">
         <div className="border-b">
           <div className="flex h-16 items-center px-4">
-            <TeamSwitcher />
+            {/* <TeamSwitcher /> */}
             <MainNav className="mx-6" />
             <div className="ml-auto flex items-center space-x-4">
               <UserNav />
@@ -91,52 +88,11 @@ export default async function DashboardPage() {
               <TabsTrigger value="overview">
                 Geral
               </TabsTrigger>
-              <TabsTrigger value="analytics">
-                Analytics
-              </TabsTrigger>
-              <TabsTrigger value="reports">
-                Reports
-              </TabsTrigger>
-              <TabsTrigger value="notifications">
-                Notifications
+              <TabsTrigger value="info">
+                Matéria
               </TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {students?.map((fullStudent: any) => {
-                  const { Student: student, School: school } = fullStudent;
-                  return (
-                    <Card key={student.name} className={cn("shadow-none", {
-                      "border-pink-300/75": student.gender,
-                      "border-cyan-300/75": !student.gender,
-                    })}>
-                      <div className="px-6 py-3 flex items-center">
-                        <Avatar className="h-20 w-20">
-                          <AvatarImage src={student.avatar} alt="Avatar" />
-                          <AvatarFallback>?</AvatarFallback>
-                        </Avatar>
-                        <div className="pl-6">
-                          <CardHeader className="p-0 flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-md font-medium">
-                              {student.name}
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="p-0">
-                            <div className="flex items-start text-xs text-muted-foreground">
-                              <Cake className="mr-1" size={16}/>
-                              <span className="mt-px">{student.birthday.toLocaleDateString('pt-PT')}</span>
-                            </div>
-                            <div className="flex items-start text-xs text-muted-foreground mt-1">
-                              <School className="mr-1" size={16} />
-                              <span className="mt-px">{school.name}</span>
-                            </div>
-                          </CardContent>
-                        </div>
-                      </div>
-                    </Card>
-                  )
-              })}
-              </div>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <Card className="col-span-2 p-6">
                   <Calendar events={events} students={students} />
@@ -149,13 +105,12 @@ export default async function DashboardPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <RecentSales />
+                    <RecentSales events={totalNextEvents} />
                   </CardContent>
                 </Card>
               </div>
             </TabsContent>
-            <TabsContent value="analytics" className="space-y-4">
-                  Analytics
+            <TabsContent value="info" className="space-y-4">
             </TabsContent>
           </Tabs>
         </div>
@@ -193,13 +148,18 @@ async function getEvents() {
             Student: {
               select: {
                 name: true,
+                avatar: true,
               },
             }
           },
         },
         Subject: {
-          select: {
-            name: true,
+          include: {
+            Level: {
+              select: {
+                name: true,
+              }
+            }
           }
         },
       },

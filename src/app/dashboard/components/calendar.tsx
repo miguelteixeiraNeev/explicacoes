@@ -12,10 +12,10 @@ export default function Calendar({ events, students } : { events: Array<any>,  s
             end: evt.date,
             resourceId: 1,
             allDay: true,
-            color: '#aa00ee',
+            color: evt.StudentYear.color,
         }
     })
-    const allBirthdays = students?.map((evt) => {
+    const allBirthdays = students?.filter((student: any) => student.Student.birthday !== null).map((evt) => {
         return {
             title: `🎉 ${evt.Student.name}`,
             start: `${new Date().getFullYear()}-${("0" + (evt.Student.birthday.getMonth() + 1)).slice(-2)}-${("0" + evt.Student.birthday.getDate()).slice(-2)}`,
@@ -25,7 +25,7 @@ export default function Calendar({ events, students } : { events: Array<any>,  s
             color: '#FFBF00',
         }
     })
-    console.log(allBirthdays);
+    
     return (
         <FullCalendar
             plugins={[ dayGridPlugin ]}

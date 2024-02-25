@@ -42,6 +42,7 @@ model StudentYear {
   student_id BigInt
   year_id    BigInt
   school_id  BigInt
+  color      String?  @db.VarChar
   Grade      Grade[]
   School     School   @relation(fields: [school_id], references: [id], onDelete: NoAction, map: "public_StudentYear_school_id_fkey")
   Student    Student  @relation(fields: [student_id], references: [id], onDelete: NoAction, map: "public_StudentYear_student_id_fkey")
@@ -108,6 +109,7 @@ model Subject {
   created_at DateTime @default(now()) @db.Timestamptz(6)
   name       String   @db.VarChar
   level_id   BigInt
+  icon       String?  @db.VarChar
   Grade      Grade[]
   Level      Level    @relation(fields: [level_id], references: [id], onDelete: NoAction, map: "public_Subject_level_id_fkey")
 
